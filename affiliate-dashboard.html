@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Affiliate Dashboard — Hendez</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --indigo-deep:#151b33;
+    --indigo-mid:#232c52;
+    --gold:#d4a03d;
+    --gold-soft:#e8c979;
+    --cream:#f6f1e4;
+    --line: rgba(246,241,228,0.14);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--indigo-deep); color:var(--cream);
+    font-family:'Inter', sans-serif; line-height:1.55;
+    min-height:100vh;
+  }
+  h1,h2,h3{ font-family:'Space Grotesk', sans-serif; font-weight:700; letter-spacing:-0.02em; }
+  .mono{ font-family:'IBM Plex Mono', monospace; letter-spacing:0.02em; }
+  a{ color:inherit; }
+  .wrap{ max-width:960px; margin:0 auto; padding:0 28px; }
+
+  header{ border-bottom:1px solid var(--line); padding:20px 0; }
+  header .wrap{ display:flex; align-items:center; justify-content:space-between; }
+  .logo{ font-size:1.2rem; display:flex; align-items:center; gap:8px; }
+  .logo .dot{ width:9px; height:9px; border-radius:50%; background:var(--gold); }
+
+  main{ padding:56px 0 80px; }
+
+  /* --- gate --- */
+  .gate{
+    max-width:420px; margin:60px auto;
+    background:var(--indigo-mid); border:1px solid var(--line); border-radius:6px;
+    padding:40px 34px;
+  }
+  .gate h2{ font-size:1.5rem; margin-bottom:10px; }
+  .gate p{ opacity:0.75; font-size:0.92rem; margin-bottom:26px; }
+  .field{ margin-bottom:16px; }
+  .field label{ font-size:0.8rem; opacity:0.7; display:block; margin-bottom:6px; }
+  .field input{
+    width:100%; padding:12px 14px; border-radius:3px;
+    background:var(--indigo-deep); border:1px solid var(--line); color:var(--cream);
+    font-family:'Inter'; font-size:0.95rem;
+  }
+  .field input:focus{ outline:2px solid var(--gold); outline-offset:1px; border-color:var(--gold); }
+  .btn{
+    display:inline-block; padding:12px 22px; border-radius:3px; font-size:0.9rem; font-weight:600;
+    cursor:pointer; border:none; transition: background 0.15s ease, transform 0.15s ease;
+  }
+  .btn-gold{ background:var(--gold); color:var(--indigo-deep); width:100%; }
+  .btn-gold:hover{ background:var(--gold-soft); transform:translateY(-1px); }
+
+  /* --- dashboard --- */
+  #dashboard{ display:none; }
+  .top-row{ display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:36px; flex-wrap:wrap; gap:16px; }
+  .top-row h1{ font-size:1.9rem; }
+  .top-row p{ opacity:0.7; font-size:0.92rem; margin-top:6px; }
+
+  .link-card{
+    background:var(--indigo-mid); border:1px solid var(--line); border-radius:6px;
+    padding:24px 26px; margin-bottom:28px;
+    display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+  }
+  .link-card .label{ font-size:0.78rem; opacity:0.65; margin-bottom:8px; }
+  .link-card .url{ font-family:'IBM Plex Mono'; font-size:0.95rem; color:var(--gold-soft); word-break:break-all; }
+  .copy-btn{
+    padding:10px 18px; border-radius:3px; border:1px solid var(--line); background:transparent;
+    color:var(--cream); font-size:0.85rem; cursor:pointer; white-space:nowrap;
+  }
+  .copy-btn:hover{ border-color:var(--gold); }
+
+  .stats-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-bottom:36px; }
+  .stat-card{
+    background:var(--indigo-mid); border:1px solid var(--line); border-radius:6px; padding:22px 24px;
+  }
+  .stat-card .n{ font-family:'Space Grotesk'; font-size:1.9rem; color:var(--gold-soft); font-weight:700; }
+  .stat-card .l{ font-size:0.8rem; opacity:0.65; margin-top:4px; }
+
+  table{ width:100%; border-collapse:collapse; }
+  thead th{
+    text-align:left; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em;
+    opacity:0.6; padding:12px 14px; border-bottom:1px solid var(--line);
+  }
+  tbody td{ padding:14px; font-size:0.9rem; border-bottom:1px solid var(--line); }
+  tbody tr:last-child td{ border-bottom:none; }
+  .status{ font-size:0.78rem; padding:3px 9px; border-radius:20px; }
+  .status.paid{ background:rgba(212,160,61,0.18); color:var(--gold-soft); }
+  .status.pending{ background:rgba(246,241,228,0.08); color:var(--cream); opacity:0.7; }
+
+  .table-wrap{ background:var(--indigo-mid); border:1px solid var(--line); border-radius:6px; overflow:hidden; margin-bottom:20px;}
+  .empty{ padding:40px; text-align:center; opacity:0.6; font-size:0.9rem; }
+
+  .backend-note{
+    margin-top:40px; border-left:2px solid var(--gold); padding:16px 20px;
+    background:var(--indigo-mid); border-radius:0 6px 6px 0; font-size:0.85rem; opacity:0.85;
+  }
+  .backend-note strong{ color:var(--gold-soft); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="logo"><span class="dot"></span>Hendez Affiliate</div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <div class="gate" id="gate">
+      <h2>Sign in to your dashboard</h2>
+      <p>Enter the email you registered with. In the full build this checks your affiliate account — right now it generates your referral link so you can see how the dashboard works.</p>
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="you@example.com">
+      </div>
+      <button class="btn btn-gold" onclick="signIn()">View my dashboard</button>
+    </div>
+
+    <div id="dashboard">
+      <div class="top-row">
+        <div>
+          <h1>Welcome back</h1>
+          <p id="welcome-email"></p>
+        </div>
+        <button class="btn btn-gold" style="width:auto;" onclick="signOut()">Sign out</button>
+      </div>
+
+      <div class="link-card">
+        <div>
+          <div class="label mono">Your referral link</div>
+          <div class="url" id="ref-link"></div>
+        </div>
+        <button class="copy-btn" onclick="copyLink()">Copy link</button>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="n" id="stat-clicks">0</div>
+          <div class="l">link clicks (30 days)</div>
+        </div>
+        <div class="stat-card">
+          <div class="n" id="stat-sales">0</div>
+          <div class="l">confirmed sales</div>
+        </div>
+        <div class="stat-card">
+          <div class="n" id="stat-earned">₦0</div>
+          <div class="l">total commission earned</div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Course</th><th>Amount</th><th>Your cut (25%)</th><th>Status</th></tr>
+          </thead>
+          <tbody id="sales-body"></tbody>
+        </table>
+        <div class="empty" id="empty-state" style="display:none;">
+          No sales yet — share your link above. New sales appear here automatically once your dashboard is connected to live data.
+        </div>
+      </div>
+
+      <div class="backend-note">
+        <strong>What's real:</strong> your referral link, sign-up, and the sales/earnings table below all read from a real database — once <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> at the top of this file's script are filled in with your project's values. Click counts aren't tracked yet (that needs one more small addition); sales and commission are live from the moment the Paystack webhook is connected.
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  // ---- Connect this to your real Supabase project ----
+  // Both values below are safe to expose in the browser — this is the
+  // public "anon" key, not the secret service key used by the webhook.
+  const SUPABASE_URL = "https://YOUR-PROJECT.supabase.co";
+  const SUPABASE_ANON_KEY = "YOUR_ANON_KEY";
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  function makeRefCode(email){
+    // Used only the first time someone signs up, to generate their code.
+    let hash = 0;
+    for (let i = 0; i < email.length; i++){
+      hash = ((hash << 5) - hash) + email.charCodeAt(i);
+      hash |= 0;
+    }
+    return "BK" + Math.abs(hash).toString(36).toUpperCase().slice(0,6);
+  }
+
+  async function signIn(){
+    const email = document.getElementById('email').value.trim();
+    if (!email){ alert("Enter an email to continue."); return; }
+
+    // Look up an existing affiliate record, or create one on first visit.
+    let { data: existing } = await supabase
+      .from('affiliates')
+      .select('ref_code')
+      .eq('email', email)
+      .maybeSingle();
+
+    let refCode = existing?.ref_code;
+
+    if (!refCode) {
+      refCode = makeRefCode(email);
+      const { error } = await supabase
+        .from('affiliates')
+        .insert({ email, ref_code: refCode });
+      if (error) {
+        alert("Couldn't create your affiliate account: " + error.message);
+        return;
+      }
+    }
+
+    const link = window.location.origin.replace('affiliate-dashboard.html','') + "index.html?ref=" + refCode;
+
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    document.getElementById('welcome-email').textContent = email;
+    document.getElementById('ref-link').textContent = link;
+
+    loadSales(refCode);
+  }
+
+  async function loadSales(refCode){
+    const { data, error } = await supabase
+      .from('sales')
+      .select('course, amount_kobo, commission_kobo, status')
+      .eq('ref_code', refCode)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error(error);
+      renderSales([]);
+      return;
+    }
+
+    // Convert kobo (what Paystack/the DB store) back to naira for display.
+    renderSales(data.map(s => ({
+      course: s.course,
+      amount: s.amount_kobo / 100,
+      status: s.status
+    })));
+  }
+
+  function signOut(){
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('gate').style.display = 'block';
+  }
+
+  function renderSales(sales){
+    const body = document.getElementById('sales-body');
+    const empty = document.getElementById('empty-state');
+    body.innerHTML = '';
+
+    if (!sales.length){
+      empty.style.display = 'block';
+      document.getElementById('stat-clicks').textContent = '—';
+      document.getElementById('stat-sales').textContent = '0';
+      document.getElementById('stat-earned').textContent = '₦0';
+      return;
+    }
+    empty.style.display = 'none';
+
+    let totalEarned = 0;
+    let paidCount = 0;
+    sales.forEach(s => {
+      const cut = Math.round(s.amount * 0.25);
+      if (s.status === 'paid'){ totalEarned += cut; paidCount++; }
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${s.course}</td>
+        <td class="mono">₦${s.amount.toLocaleString()}</td>
+        <td class="mono">₦${cut.toLocaleString()}</td>
+        <td><span class="status ${s.status}">${s.status === 'paid' ? 'Paid' : 'Pending'}</span></td>
+      `;
+      body.appendChild(tr);
+    });
+
+    document.getElementById('stat-clicks').textContent = '—'; // not tracked yet
+    document.getElementById('stat-sales').textContent = paidCount;
+    document.getElementById('stat-earned').textContent = '₦' + totalEarned.toLocaleString();
+  }
+
+  function copyLink(){
+    const text = document.getElementById('ref-link').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = event.target;
+      const old = btn.textContent;
+      btn.textContent = 'Copied';
+      setTimeout(() => btn.textContent = old, 1500);
+    });
+  }
+</script>
+
+</body>
+</html>
